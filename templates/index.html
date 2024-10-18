@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Movie Recommendation System</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        color: #333;
+        background: url("/static/background.jpg") no-repeat center center fixed;
+        background-size: cover;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        width: 80%;
+        margin: auto;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #444;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input[type="text"],
+      input[type="number"],
+      input[type="submit"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        box-sizing: border-box;
+        margin-bottom: 10px;
+      }
+      input[type="submit"] {
+        background-color: #5cb85c;
+        color: white;
+        border: none;
+        cursor: pointer;
+      }
+      input[type="submit"]:hover {
+        background-color: #4cae4c;
+      }
+      .recommendations,
+      .movies-list {
+        margin-top: 20px;
+      }
+      .recommendation-item {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 10px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        margin-bottom: 20px;
+      }
+      .recommendation-item h2 {
+        margin-top: 0;
+        font-size: 1.5em;
+        color: #444;
+      }
+      .tags {
+        margin-top: 10px;
+      }
+      .tag {
+        display: inline-block;
+        background-color: #f1f1f1;
+        color: #555;
+        padding: 5px 10px;
+        border-radius: 20px;
+        margin-right: 5px;
+        font-size: 0.9em;
+      }
+      .tag:hover {
+        background-color: #e1e1e1;
+      }
+      .top-tags {
+        margin-top: 20px;
+      }
+      .top-tags label {
+        font-weight: bold;
+      }
+      .top-tags input[type="checkbox"] {
+        margin-right: 10px;
+      }
+      .movies-list {
+        margin-top: 20px;
+      }
+      /* Accordion Styles */
+      .accordion {
+        background-color: #eee;
+        color: #444;
+        cursor: pointer;
+        padding: 10px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 1.2em;
+        border-radius: 5px;
+        margin-top: 20px;
+      }
+      .accordion.active,
+      .accordion:hover {
+        background-color: #ddd;
+      }
+      .accordion-content {
+        display: none;
+        overflow: hidden;
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Movie Recommendation System</h1>
+      <form method="post" action="/">
+        <div class="form-group">
+          <label for="movie_title">Movie Title:</label>
+          <input type="text" id="movie_title" name="movie_title" required />
+        </div>
+        <div class="form-group">
+          <label for="num_recommendations">Number of Recommendations:</label>
+          <input
+            type="number"
+            id="num_recommendations"
+            name="num_recommendations"
+            min="1"
+            max="10"
+            value="8"
+            required
+          />
+        </div>
+        <input type="submit" value="Get Recommendations" />
+      </form>
+
+      {% if recommendations %}
+      <div class="recommendations">{{ recommendations|safe }}</div>
+      {% else %}
+      <p>Enter a movie title and number of recommendations to get started!</p>
+      {% endif %}
+
+      <button class="accordion" id="tags-accordion">
+        If you can't think of a movie name, explore by tags:
+      </button>
+      <div class="accordion-content">
+        <div class="top-tags">
+          <h2>Top 20 Tags</h2>
+          <form method="post" action="/search_by_tags">
+            {% for tag in top_tags %}
+            <label>
+              <input type="checkbox" name="tags" value="{{ tag }}" /> {{ tag }}
+            </label>
+            {% endfor %}
+            <input type="submit" value="Find Movies by Tags" />
+          </form>
+        </div>
+
+        {% if movies_list %}
+        <div class="movies-list">
+          <h2>Movies Found:</h2>
+          {{ movies_list|safe }}
+        </div>
+        {% endif %}
+      </div>
+      <!-- Add this inside your container -->
+    </div>
+    <script>
+      // Accordion functionality
+      document.addEventListener("DOMContentLoaded", function () {
+          var acc = document.getElementsByClassName("accordion");
+          for (var i = 0; i < acc.length; i++) {
+              acc[i].addEventListener("click", function () {
+                  this.classList.toggle("active");
+                  var panel = this.nextElementSibling;
+                  if (panel.style.display === "block") {
+                      panel.style.display = "none";
+                  } else {
+                      panel.style.display = "block";
+                  }
+              });
+          }
+          {% if movies_list %}
+          var tagsAccordion = document.getElementById("tags-accordion");
+          tagsAccordion.classList.add("active");
+          tagsAccordion.nextElementSibling.style.display = "block";
+          {% endif %}
+      });
+    </script>
+  </body>
+</html>
